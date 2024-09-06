@@ -12,4 +12,12 @@ export default class TeamsService {
     const allTeams = await this.teamModel.findAll();
     return { status: 'SUCCESSFUL', data: allTeams };
   }
+
+  public async getTeamById(id: number): Promise<ServiceResponse<Team>> {
+    const team = await this.teamModel.findById(id);
+    if (!team) {
+      return { status: 'NOT_FOUND', data: { message: 'Time não encontrado' } };
+    }
+    return { status: 'SUCCESSFUL', data: team };
+  }
 }
