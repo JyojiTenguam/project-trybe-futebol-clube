@@ -20,4 +20,15 @@ export default class MatchService {
       throw new Error('Internal error while fetching matches');
     }
   }
+
+  public static async finishMatch(id: number): Promise<void> {
+    const match = await Match.findByPk(id);
+
+    if (!match) {
+      throw new Error('Match not found');
+    }
+
+    match.inProgress = false;
+    await match.save();
+  }
 }

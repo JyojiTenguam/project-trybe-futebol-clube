@@ -12,4 +12,15 @@ export default class MatchController {
       return res.status(500).json({ message: 'Internal error while fetching matches' });
     }
   }
+
+  public static async finishMatch(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      await MatchService.finishMatch(Number(id));
+      return res.status(200).json({ message: 'Finished' });
+    } catch (error) {
+      console.error('Erro no controller ao finalizar a partida:', error);
+      return res.status(500).json({ message: 'Erro interno ao finalizar a partida' });
+    }
+  }
 }
