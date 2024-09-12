@@ -36,4 +36,13 @@ describe('Teams testes', function(){
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(teamMock);
   });
+
+  it('Erro 404 para time inexistente', async function(){
+    findByPkStub = sinon.stub(TeamsModel, 'findByPk').resolves(null);
+  
+    const response = await chai.request(app).get('/teams/999');
+  
+    expect(response.status).to.equal(404);
+    expect(response.body).to.deep.equal({ message: 'Team not found' });
+  });
 });
