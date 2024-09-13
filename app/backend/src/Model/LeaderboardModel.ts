@@ -14,7 +14,7 @@ const leaderboardTemplate = (team: string) => ({
   goalsFavor: 0,
   goalsOwn: 0,
   goalsBalance: 0,
-  efficiency: 0.00,
+  efficiency: 0,
 });
 
 const sortLeaderboard = (leaderboard: Leaderboard[]): Leaderboard[] => leaderboard.sort((a, b) => {
@@ -76,19 +76,20 @@ export default class LeaderboardModel implements ILeaderboard {
 
       if (!acc[homeTeam]) acc[homeTeam] = leaderboardTemplate(homeTeam);
 
-      acc[homeTeam].totalGames += 1;
-      acc[homeTeam].goalsFavor += homeTeamGoals;
+      acc[homeTeam].totalGames += 1; acc[homeTeam].goalsFavor += homeTeamGoals;
       acc[homeTeam].goalsOwn += awayTeamGoals;
+      acc[homeTeam].goalsBalance = acc[homeTeam].goalsFavor - acc[homeTeam].goalsOwn;
 
       if (homeTeamGoals === awayTeamGoals) {
         acc[homeTeam].totalPoints += 1; acc[homeTeam].totalDraws += 1;
       } else if (homeTeamGoals > awayTeamGoals) {
         acc[homeTeam].totalPoints += 3; acc[homeTeam].totalVictories += 1;
-      } else {
-        acc[homeTeam].totalLosses += 1;
-      } return acc;
+      } else { acc[homeTeam].totalLosses += 1; }
+      acc[homeTeam].efficiency = efficiency(acc[homeTeam].totalPoints, acc[homeTeam].totalGames);
+
+      return acc;
     }, {});
-    return Object.values(leaderboard);
+    return sortLeaderboard(Object.values(leaderboard));
   }
 
   async getAwayTeamStats(): Promise<Leaderboard[]> {
