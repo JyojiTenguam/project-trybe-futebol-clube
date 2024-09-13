@@ -29,6 +29,30 @@ const efficiency = (points: number, games: number): number => {
   return parseFloat(((points / (games * 3)) * 100).toFixed(2));
 };
 
+const mergeLeaderboard = (
+  homeLeaderboard: Leaderboard[],
+  awayLeaderboard: Leaderboard[],
+): Leaderboard[] => {
+  const ab: { [key: string]: Leaderboard } = {};
+
+  const mergeTeamStats = (team: Leaderboard) => {
+    if (!ab[team.name]) { ab[team.name] = { ...team }; } else {
+      ab[team.name].totalPoints += team.totalPoints;
+      ab[team.name].totalGames += team.totalGames;
+      ab[team.name].totalVictories += team.totalVictories;
+      ab[team.name].totalDraws += team.totalDraws;
+      ab[team.name].totalLosses += team.totalLosses;
+      ab[team.name].goalsFavor += team.goalsFavor; ab[team.name].goalsOwn += team.goalsOwn;
+      ab[team.name].goalsBalance = ab[team.name].goalsFavor - ab[team.name].goalsOwn;
+      ab[team.name].efficiency = efficiency(ab[team.name].totalPoints, ab[team.name].totalGames);
+    }
+  };
+
+  homeLeaderboard.forEach(mergeTeamStats); awayLeaderboard.forEach(mergeTeamStats);
+
+  return sortLeaderboard(Object.values(ab));
+};
+
 export default class LeaderboardModel implements ILeaderboard {
   private matchModel = SequelizeMatch;
 
@@ -90,5 +114,12 @@ export default class LeaderboardModel implements ILeaderboard {
       return acc;
     }, {});
     return sortLeaderboard(Object.values(leaderboard));
+  }
+
+  async getLeaderboard(): Promise<Leaderboard[]> {
+    const homeLeaderboard = await this.getHomeTeamStats();
+    const awayLeaderboard = await this.getAwayTeamStats();
+
+    return mergeLeaderboard(homeLeaderboard, awayLeaderboard);
   }
 }

@@ -118,3 +118,34 @@ export const finishedMatches = [
     },
   },
 ];
+
+export const errorMatches = [
+  {
+    id: 1,
+    homeTeamId: 16,
+    awayTeamId: 8,
+    homeTeamGoals: 1,
+    awayTeamGoals: 1,
+    inProgress: true,
+    homeTeam: {
+      teamName: 'São Paulo',
+    },
+    awayTeam: {
+      teamName: 'Grêmio',
+    },
+  },
+  {
+    id: 2,
+    homeTeamId: 9,
+    awayTeamId: 14,
+    homeTeamGoals: 1,
+    awayTeamGoals: 1,
+    inProgress: true,
+    homeTeam: {
+      teamName: 'Internacional',
+    },
+    awayTeam: {
+      teamName: 'Santos',
+    },
+  },
+];

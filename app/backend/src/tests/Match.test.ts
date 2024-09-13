@@ -5,7 +5,8 @@ import chaiHttp = require('chai-http');
 import { app } from '../app';
 import SequelizeMatch from '../database/models/match.model';
 import { Response } from 'superagent';
-import { allMatches, finishedMatches, inProgressMatches } from '../mocks/match.mock';
+import { allMatches, errorMatches, finishedMatches, inProgressMatches } from '../mocks/match.mock';
+import jwtUtil from '../utils/jwt.util';
 
 chai.use(chaiHttp);
 
@@ -14,6 +15,7 @@ const { expect } = chai;
 
 describe('Teste de integração para o endpoint /match', () => {
   let chaiHttpResponse: Response;
+  const validToken = jwtUtil.sign({ id: 1, email: 'admin@admin.com' });
 
   beforeEach(function () {
     sinon.restore();
@@ -51,5 +53,25 @@ describe('Teste de integração para o endpoint /match', () => {
     expect(chaiHttpResponse.body).to.be.an('array');
     const allInProgressFalse = chaiHttpResponse.body.every((match: any) => match.inProgress === false);
     expect(allInProgressFalse).to.be.true;
+  });
+
+  it('Status 404 - Não encontrou a partida', async () => {
+    const matchId = 1;
+    sinon.stub(SequelizeMatch, 'findByPk').resolves(null);
+
+    chaiHttpResponse = await chai.request(app).patch(`/matches/${matchId}`).set('Authorization', `token ${validToken}`).send(finishedMatches[0]);
+
+    expect(chaiHttpResponse).to.have.status(404);
+    expect(chaiHttpResponse.body).to.deep.equal({ message: 'Match not found' });
+  });
+
+  it('Status 404 - Não encontrou o time da casa', async () => {
+    sinon.stub(SequelizeMatch, 'create').resolves(errorMatches[0] as any);
+    sinon.stub(SequelizeMatch, 'findByPk').resolves(null);
+
+    chaiHttpResponse = await chai.request(app).post(`/matches`).set('Authorization', `token ${validToken}`).send(errorMatches[0]);
+
+    expect(chaiHttpResponse).to.have.status(404);
+    expect(chaiHttpResponse.body).to.deep.equal({ message: 'There is no team with such id!' });
   });
 }); 

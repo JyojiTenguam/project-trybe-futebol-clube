@@ -12,4 +12,9 @@ export default class LeaderboardService {
     const awayStats = await this.leaderboardModel.getAwayTeamStats();
     return awayStats;
   }
+
+  async getLeaderboard() {
+    const leaderboard = await this.leaderboardModel.getLeaderboard();
+    return leaderboard;
+  }
 }
